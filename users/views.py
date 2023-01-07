@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.urls import reverse_lazy
 
-from users.forms import UserLoginForm
-
-
+from users.forms import UserLoginForm, UserRegistrationForm
 
 
 # Create your views here.
+
+
 
 def login(request):
     if request.method == 'POST':
@@ -28,4 +28,14 @@ def login(request):
 
 
 def registration(request):
-    return render(request, 'users/registration.html')
+    if request.method == 'POST':
+        form = UserRegistrationForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse_lazy('users:login'))
+    else:
+        form = UserRegistrationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'users/registration.html', context)

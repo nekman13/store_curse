@@ -8,6 +8,5 @@ app_name = 'users'
 
 urlpatterns = [
     path('login/', login, name='login'),
-    path('register', registration, name='register'),
-
+    path('register/', registration, name='register'),
 ]
