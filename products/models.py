@@ -2,6 +2,7 @@ from django.db import models
 
 from users.models import User
 
+
 class ProductCategory(models.Model):
     name = models.CharField(max_length=128, verbose_name='Категория', unique=True)
     description = models.TextField(null=True, blank=True, verbose_name='Описание категории')

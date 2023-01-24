@@ -1,10 +1,16 @@
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
+import uuid
+from datetime import timedelta
 
-from users.models import User
+from django import forms
+from django.contrib.auth.forms import (AuthenticationForm, UserChangeForm,
+                                       UserCreationForm)
+from django.utils.timezone import now
+
+from users.models import EmailVerification, User
 
 
 class UserLoginForm(AuthenticationForm):
+    """Класс формы аутентификации пользователя"""
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control py-4',
         'placeholder': 'Введите имя пользователя',
@@ -20,6 +26,7 @@ class UserLoginForm(AuthenticationForm):
 
 
 class UserRegistrationForm(UserCreationForm):
+    """Класс формы регистрации пользователя"""
     first_name = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control py-4',
         'placeholder': 'Введите имя',
@@ -54,8 +61,17 @@ class UserRegistrationForm(UserCreationForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email','password1', 'password2']
 
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save(commit=True)
+        expiration = now() + timedelta(hours=48)
+        record = EmailVerification.objects.create(code=uuid.uuid4(), user=user, expiration=expiration)
+        record.send_verification_email()
+        return user
+
+
 
 class UserChangeProfileForm(UserChangeForm):
+    """Класс для изменения профиля пользователя"""
 
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4', }))
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4', }))

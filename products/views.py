@@ -1,31 +1,27 @@
-from django.core.paginator import Paginator
-from django.db.models import QuerySet
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-from django.views.generic import DetailView, TemplateView, ListView
+from django.shortcuts import redirect
+from django.views.generic import ListView, TemplateView
 
-from .models import Product, ProductCategory, Basket
+from common.views import CommonMixin
 
+from .models import Basket, Product, ProductCategory
 
 # Create your views here.
 
-class IndexView(TemplateView):
+class IndexView(CommonMixin, TemplateView):
+   """Класс для вывода главной страницы"""
    template_name = 'products/index.html'
-   def get_context_data(self, **kwargs):
-      context = super(IndexView, self).get_context_data(**kwargs)
-      context['title'] = 'Store'
-
-      return context
+   title = 'Store - главная страница'
 
 
 # todo контроллер вывода всех продуктов
-class ProductsListView(ListView):
-
+class ProductsListView(CommonMixin, ListView):
+   """Класс для вывода списка продуктов"""
    model = Product
    context_object_name = 'products'
    template_name = 'products/products.html'
    paginate_by = 3
+   title = 'Store - каталог'
 
    def get_context_data(self, *, object_list=None, **kwargs):
       context = super(ProductsListView, self).get_context_data(**kwargs)
@@ -38,11 +34,9 @@ class ProductsListView(ListView):
       return queryset.filter(category_id=category_id) if category_id else queryset
 
 
-
-#
-
 @login_required()
 def basket_add(request, product_id):
+   """Добавление продукта в корзину"""
    product = Product.objects.get(id=product_id)
    baskets = Basket.objects.filter(user=request.user, product=product)
 
@@ -59,11 +53,12 @@ def basket_add(request, product_id):
 
 @login_required()
 def basket_delete(request, basket_id):
+   """Удаление продукта из корзины"""
    basket = Basket.objects.get(id=basket_id)
    basket.delete()
 
-   return redirect(reverse_lazy('users:profile'))
-
+   # return redirect(reverse_lazy('users:profile'), args=[request.user.id])
+   return redirect(request.META['HTTP_REFERER'])
 
 
 

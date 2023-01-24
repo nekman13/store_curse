@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-#p^b&zm5ny9ka&v-t1e)#y+&o$s-nrby=qvuul!3rqpkxfwoqx
 DEBUG = True
 
 ALLOWED_HOSTS = []
+DOMAIN_NAME = ' http://127.0.0.1:1000'
+
 
 
 # Application definition
@@ -37,6 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.github',
     'products',
     'users',
 
@@ -65,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'products.context_processors.baskets',
             ],
         },
     },
@@ -76,10 +85,21 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": 'store_db',
+        "USER": 'store_username',
+        "PASSWORD": 'store_password',
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
@@ -136,3 +156,31 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Отправка почты
+EMAIL_HOST = 'smtp.yandex.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'serverpoletaev@yandex.ru'
+EMAIL_HOST_PASSWORD = 'gyvukblmmzldbemo'
+EMAIL_USE_SSL = True
+
+#OAuth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        'SCOPE': [
+            'user',
+            # 'repo',
+            # 'read:org',
+        ],
+    }
+}
