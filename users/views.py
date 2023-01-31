@@ -6,60 +6,61 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import CommonMixin
-from users.forms import (UserChangeProfileForm, UserLoginForm,
-                         UserRegistrationForm)
+from users.forms import UserChangeProfileForm, UserLoginForm, UserRegistrationForm
 from users.models import EmailVerification, User
 
 # Create your views here.
 
+
 class EmailVerificationView(CommonMixin, TemplateView):
-    title = 'Подтверждение почты'
-    template_name = 'users/email_verification.html'
+    title = "Подтверждение почты"
+    template_name = "users/email_verification.html"
 
     def get(self, request, *args, **kwargs):
-        code = kwargs['code']
-        user = User.objects.get(email=kwargs['email'])
+        code = kwargs["code"]
+        user = User.objects.get(email=kwargs["email"])
         email_verifications = EmailVerification.objects.filter(user=user, code=code)
-        if email_verifications.exists() and not email_verifications.first().is_expired():
+        if (
+            email_verifications.exists()
+            and not email_verifications.first().is_expired()
+        ):
             user.is_verified_email = True
             user.save()
             return super(EmailVerificationView, self).get(request, *args, **kwargs)
         else:
-            return redirect(reverse_lazy('products:index'))
+            return redirect(reverse_lazy("products:index"))
 
 
 class UserLoginView(CommonMixin, SuccessMessageMixin, LoginView):
     form_class = UserLoginForm
-    template_name = 'users/login.html'
-    success_message = 'Добро пожаловать!'
-    title = 'Авторизация'
+    template_name = "users/login.html"
+    success_message = "Добро пожаловать!"
+    title = "Авторизация"
 
 
 class UserProfileView(CommonMixin, UpdateView):
-    template_name = 'users/pofile.html'
+    template_name = "users/pofile.html"
     model = User
     form_class = UserChangeProfileForm
-    title = 'Личный кабинет'
+    title = "Личный кабинет"
 
     def get_success_url(self):
-        return reverse_lazy('users:profile', args=(self.request.user.id, ))
+        return reverse_lazy("users:profile", args=(self.request.user.id,))
 
 
 class UserRegistrationView(CommonMixin, SuccessMessageMixin, CreateView):
     model = User
     form_class = UserRegistrationForm
-    template_name = 'users/registration.html'
-    success_url = reverse_lazy('users:login')
-    success_message = 'Вы успешно зарегистрированы!'
-    title = 'Регистрация'
+    template_name = "users/registration.html"
+    success_url = reverse_lazy("users:login")
+    success_message = "Вы успешно зарегистрированы!"
+    title = "Регистрация"
 
 
 def logout(request):
     auth.logout(request)
-    messages.success(request, 'Вы успешно вышли из профиля!')
-    return redirect(reverse_lazy('index'))
-
-
+    messages.success(request, "Вы успешно вышли из профиля!")
+    return redirect(reverse_lazy("index"))
 
 
 # def login(request):
